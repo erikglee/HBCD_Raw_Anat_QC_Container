@@ -39,12 +39,11 @@ RUN rm /mcr_path/mcr.zip
 
 #Download the unique code for this project
 RUN mkdir /code
-RUN wget https://s3.msi.umn.edu/leex6144-public/osprey_containerization_code_v1.zip -O /code/code.zip
+RUN wget https://s3.msi.umn.edu/leex6144-public/osprey_containerization_code_v2.zip -O /code/code.zip
 RUN cd /code && unzip -q ./code.zip
 RUN rm /code/code.zip
 
-#RUN export MCR_PATH=/mcr_path
-#RUN export EXECUTABLE_PATH=/code/run_compiled.sh
+#Export paths
 ENV MCR_PATH=/mcr_path
 ENV EXECUTABLE_PATH=/code/run_compiled.sh
 
