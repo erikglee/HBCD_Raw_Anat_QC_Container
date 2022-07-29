@@ -39,7 +39,7 @@ RUN rm /mcr_path/mcr.zip
 
 #Download the unique code for this project
 RUN mkdir /code
-RUN wget https://s3.msi.umn.edu/leex6144-public/osprey_containerization_code_v2.zip -O /code/code.zip
+RUN wget https://s3.msi.umn.edu/leex6144-public/osprey_containerization_code_v3.zip -O /code/code.zip
 RUN cd /code && unzip -q ./code.zip
 RUN rm /code/code.zip
 
