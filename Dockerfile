@@ -1,7 +1,7 @@
 #The base image is the AMD64 version of centos:centos7.9.2009, which
 #should correspond to the OS at MSI
 #FROM amd64/centos:7.9.2009
-FROM ubuntu:latest 
+FROM ubuntu:latest
 
 # Prepare environment
 RUN apt-get update && \
@@ -35,7 +35,7 @@ RUN pip install numpy
 RUN mkdir /mcr_path
 RUN wget https://s3.msi.umn.edu/leex6144-public/v910.zip -O /mcr_path/mcr.zip
 RUN cd /mcr_path && unzip -q ./mcr.zip
-RUN rm /mcr_path/mcr.zip 
+RUN rm /mcr_path/mcr.zip
 
 #Download the unique code for this project
 RUN mkdir /code
@@ -47,6 +47,11 @@ RUN rm /code/code.zip
 ENV MCR_PATH=/mcr_path
 ENV EXECUTABLE_PATH=/code/run_compiled.sh
 
+#Set permissions
 RUN chmod 555 -R /mcr_path /code
+
+#Add code dir to path
+ENV PATH="${PATH}:/code"
+RUN pipeline_name=osprey && cp /code/run.py /code/$pipeline_name
 
 ENTRYPOINT ["/code/run.py"]
