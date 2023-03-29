@@ -11,5 +11,5 @@ FROM freesurfer/synthstrip:1.4
 #RUN mkdir -p /code
 #RUN cd /code && git clone https://github.com/ANTsX/ANTsPy
 #RUN cd /code/ANTsPy && python3 ./setup.py install
-RUN python3 -m pip install nibabel
-RUN python3 -m pip install dipy
+RUN python3 -m pip install nibabel==5.0.1
+RUN python3 -m pip install dipy==1.6.0
