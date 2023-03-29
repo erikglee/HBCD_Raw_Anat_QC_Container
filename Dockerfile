@@ -7,7 +7,7 @@ FROM freesurfer/synthstrip:1.4
 
 RUN apt-get -y update
 RUN apt-get -y install git
-RUN apt-get -y install build-essential cmake=3.26.1
+RUN apt-get -y install build-essential cmake=3.26
 RUN mkdir -p /code
 RUN cd /code && git clone https://github.com/ANTsX/ANTsPy
 RUN cd /code/ANTsPy && python3 ./setup.py install
