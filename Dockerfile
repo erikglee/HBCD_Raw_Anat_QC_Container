@@ -8,5 +8,5 @@ FROM freesurfer/synthstrip:1.4
 RUN apt-get -y update
 RUN apt-get -y install git
 RUN mkdir -p /code
-RUN cd /code & git clone https://github.com/ANTsX/ANTsPy
-RUN cd /code/ANTsPy & python3 setup.py install
+RUN cd /code && git clone https://github.com/ANTsX/ANTsPy
+RUN cd /code/ANTsPy && python3 ./setup.py install
