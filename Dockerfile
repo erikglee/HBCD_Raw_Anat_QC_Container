@@ -2,4 +2,5 @@
 FROM freesurfer/synthstrip:1.4
 
 #Install pyants
-RUN python3 -m pip install antspyx
+#RUN python3 -m pip install antspyx
+RUN python3 -m pip install -v antspy
