@@ -13,4 +13,4 @@ FROM freesurfer/synthstrip:1.4
 #RUN cd /code/ANTsPy && python3 ./setup.py install
 RUN python3 -m pip install nibabel==3.2.2
 RUN python3 -m pip install dipy==1.6.0
-RUN python3 -m pip install matplotlib==3.5.1
+RUN python3 -m pip install matplotlib==3.3.4
