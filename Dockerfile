@@ -5,6 +5,7 @@ FROM freesurfer/synthstrip:1.4
 #RUN python3 -m pip install antspyx
 #RUN python3 -m pip install -v antspy
 
+RUN apt-get -y update
 RUN apt-get -y install git
 RUN mkdir -p /code
 RUN cd /code & git clone https://github.com/ANTsX/ANTsPy
