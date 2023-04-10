@@ -24,11 +24,11 @@ def register_images(input_file_path, output_destination, reuse_existing_output_f
     
     input_path_split = input_file_path.split('/')
     if 'ses-' in input_path_split[-3]:
+        partial_sub_path = '/'.join(input_path_split[-4:])
+        beginning_path = '/'.join(input_path_split[:-4])
+    else:
         partial_sub_path = '/'.join(input_path_split[-3:])
         beginning_path = '/'.join(input_path_split[:-3])
-    else:
-        partial_sub_path = '/'.join(input_path_split[-2:])
-        beginning_path = '/'.join(input_path_split[:-2])
 
     anat_out_dir = os.path.join(output_destination, os.path.dirname(partial_sub_path))
     if os.path.exists(anat_out_dir) == False:
