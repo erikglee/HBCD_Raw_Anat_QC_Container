@@ -1,16 +1,23 @@
 #The base image is FreeSurfer's synthstrip package
 FROM freesurfer/synthstrip:1.4
 
-#Install pyants
-#RUN python3 -m pip install antspyx
-#RUN python3 -m pip install -v antspy
-
-#RUN apt-get -y update
-#RUN apt-get -y install git
-#RUN apt-get -y install build-essential cmake=3.26
-#RUN mkdir -p /code
-#RUN cd /code && git clone https://github.com/ANTsX/ANTsPy
-#RUN cd /code/ANTsPy && python3 ./setup.py install
+#Install relevant python packages
 RUN python3 -m pip install nibabel==3.2.2
 RUN python3 -m pip install dipy==1.6.0
 RUN python3 -m pip install matplotlib==3.3.4
+
+#Make code and data directory
+RUN mkdir /hbcd_code && mkdir /image_templates
+
+#Copy over images
+ADD image_templates/tpl-MNIInfant_cohort-1_res-1_mask-applied_T1w.nii.gz /image_templates/tpl-MNIInfant_cohort-1_res-1_mask-applied_T1w.nii.gz
+ADD image_templates/tpl-MNIInfant_cohort-1_res-1_mask-applied_T2w.nii.gz /image_templates/tpl-MNIInfant_cohort-1_res-1_mask-applied_T2w.nii.gz
+
+#Copy code, assign permissions
+ADD run.py /hbcd_code/run.py
+RUN chmod 555 -R /hbcd_code
+ENV PATH="${PATH}:/hbcd_code"
+RUN pipeline_name=hbcd_qc && cp /hbcd_code/run.py /hbcd_code/$pipeline_name
+
+#Define entrypoint
+ENTRYPOINT ["python3", "hbcd_qc"]
