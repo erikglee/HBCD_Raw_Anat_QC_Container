@@ -51,7 +51,7 @@ def register_images(input_file_path, output_destination, reuse_existing_output_f
         input_path = input_file_path, output_skull_stripped_path = stripped_out_file))
     
     print('Attempting Native to MNI Infant Registration using DIPY: ')
-    template_image_path = '/home/umii/leex6144/Documents/Notebooks/HBCD_QC/testing_outputs/templates/tpl-MNIInfant_cohort-1_res-1_mask-applied_{}.nii.gz'.format(contrast)
+    template_image_path = '/image_templates/tpl-MNIInfant_cohort-1_res-1_mask-applied_{}.nii.gz'.format(contrast)
     template_image = dipy.io.image.load_nifti(template_image_path)
     original_image = dipy.io.image.load_nifti(input_file_path)
     registered_img = align.affine_registration(stripped_out_file, template_image[0], static_affine=template_image[1])
