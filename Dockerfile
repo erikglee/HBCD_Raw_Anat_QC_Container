@@ -20,4 +20,4 @@ ENV PATH="${PATH}:/hbcd_code"
 RUN pipeline_name=hbcd_qc && cp /hbcd_code/run.py /hbcd_code/$pipeline_name
 
 #Define entrypoint
-ENTRYPOINT ["python3", "hbcd_qc"]
+ENTRYPOINT ["hbcd_qc"]
