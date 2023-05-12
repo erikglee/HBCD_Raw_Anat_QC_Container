@@ -122,8 +122,8 @@ def make_slices_image(image_nifti_path, slice_info_dict, output_img_name, close_
         vmin = None
         vmax = None
     else:
-        #mask_data = nib.load(mask_path).get_fdata()
-        #mask_vals = mask_data[mask_data > 0.5]
+        mask_data = nib.load(mask_path).get_fdata()
+        mask_vals = mask_data[mask_data > 0.5]
         #vmin = np.percentile(mask_vals, 1)
         vmax = np.percentile(mask_vals, 95)
         hist_results = np.histogram(mask_vals, bins = 100)
