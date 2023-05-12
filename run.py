@@ -71,10 +71,10 @@ def register_images(input_file_path, output_destination, reuse_existing_output_f
     
     
     
-    return final_registered_out_file
+    return final_registered_out_file, stripped_out_file
 
 def make_slices_image(image_nifti_path, slice_info_dict, output_img_name, close_plot = True,
-                     upsample_factor = 2):
+                     upsample_factor = 2, mask_path = None):
     '''Takes a nifti and plots slices of the nifti according to slices_info_dict
     
     Parameters
@@ -90,6 +90,9 @@ def make_slices_image(image_nifti_path, slice_info_dict, output_img_name, close_
     close_plot : bool, default True
         Whether to close the plot after it
         is rendered
+    mask_path : str or None, default None
+        A masked version of the brain (with signal intensities).
+        This will can be used to help with image contrast.
         
     Example slice_info_dict. The first entry in each key's
     list dictates which plane is being imaged. The second
@@ -113,6 +116,20 @@ def make_slices_image(image_nifti_path, slice_info_dict, output_img_name, close_
     
     #Load the nifti image
     nifti_image = nib.load(image_nifti_path)
+    
+    #Load nifti mask (assume voxels > 0.5 are good)
+    if type(None) == type(mask_path):
+        vmin = None
+        vmax = None
+    else:
+        #mask_data = nib.load(mask_path).get_fdata()
+        #mask_vals = mask_data[mask_data > 0.5]
+        #vmin = np.percentile(mask_vals, 1)
+        vmax = np.percentile(mask_vals, 95)
+        hist_results = np.histogram(mask_vals, bins = 100)
+        modal_value = hist_results[1][np.argmax(hist_results[0])]
+        vmin = modal_value*.15
+        #vmax = modal_value*2
     
     #Grab data + affine
     full_data = nifti_image.get_fdata()
@@ -161,11 +178,11 @@ def make_slices_image(image_nifti_path, slice_info_dict, output_img_name, close_
 
 
     fig = plt.figure(dpi = 250)
-    ax = fig.add_subplot(111)
-    ax.imshow(full_img_panel, cmap = 'gist_gray', interpolation='nearest')
+    plt.imshow(full_img_panel, cmap = 'gist_gray', interpolation='nearest', vmin=vmin, vmax=vmax)
     plt.xticks([])
     plt.yticks([])
-    plt.savefig(output_img_name)
+    plt.axis('off')
+    plt.savefig(output_img_name, bbox_inches='tight')
     if close_plot:
         plt.close()
     
@@ -266,18 +283,18 @@ for temp_participant in participants:
         anats_dict['T2w_images'] = t2_anats
         
         for temp_t1w in anats_dict['T1w_images']:
-            registered_nii_for_slice_img = register_images(temp_t1w, output_dir)
+            registered_nii_for_slice_img, masked_image = register_images(temp_t1w, output_dir)
             slice_img_path = registered_nii_for_slice_img.replace('T1w.nii', 'T1w_image-slice.png')
             slice_img_path = slice_img_path.replace('slice.png.gz', 'slice.png') #For case when nifti is compressed
             make_slices_image(registered_nii_for_slice_img, slice_info_dict, slice_img_path, close_plot = True,
-                     upsample_factor = 2)
+                     upsample_factor = 2, mask_path = masked_image)
             
             
         for temp_t2w in anats_dict['T2w_images']:
-            registered_nii_for_slice_img = register_images(temp_t2w, output_dir)
+            registered_nii_for_slice_img, masked_image = register_images(temp_t2w, output_dir)
             slice_img_path = registered_nii_for_slice_img.replace('T2w.nii', 'T2w_image-slice.png')
             slice_img_path = slice_img_path.replace('slice.png.gz', 'slice.png') #For case when nifti is compressed
             make_slices_image(registered_nii_for_slice_img, slice_info_dict, slice_img_path, close_plot = True,
-                     upsample_factor = 2)
+                     upsample_factor = 2, mask_path = masked_image)
 
         print('Finished with: {}'.format(session_path))
