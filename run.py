@@ -125,11 +125,11 @@ def make_slices_image(image_nifti_path, slice_info_dict, output_img_name, close_
         mask_data = nib.load(mask_path).get_fdata()
         mask_vals = mask_data[mask_data > 0.5]
         #vmin = np.percentile(mask_vals, 1)
-        vmax = np.percentile(mask_vals, 95)
+        #vmax = np.percentile(mask_vals, 95)
         hist_results = np.histogram(mask_vals, bins = 100)
         modal_value = hist_results[1][np.argmax(hist_results[0])]
-        vmin = modal_value*.15
-        #vmax = modal_value*2
+        vmin = modal_value*.3
+        vmax = modal_value*1.7
     
     #Grab data + affine
     full_data = nifti_image.get_fdata()
