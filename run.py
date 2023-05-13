@@ -288,7 +288,7 @@ for temp_participant in participants:
             registered_nii_for_slice_img, masked_image = register_images(temp_t1w, output_dir)
             slice_img_path = registered_nii_for_slice_img.replace('T1w.nii', 'T1w_image-slice.png')
             slice_img_path = slice_img_path.replace('slice.png.gz', 'slice.png') #For case when nifti is compressed
-            if matplotlib_contrast:
+            if matplotlib_contrast == False:
                 make_slices_image(registered_nii_for_slice_img, slice_info_dict, slice_img_path, close_plot = True,
                         upsample_factor = 2, mask_path = masked_image)
             else:
@@ -300,7 +300,7 @@ for temp_participant in participants:
             registered_nii_for_slice_img, masked_image = register_images(temp_t2w, output_dir)
             slice_img_path = registered_nii_for_slice_img.replace('T2w.nii', 'T2w_image-slice.png')
             slice_img_path = slice_img_path.replace('slice.png.gz', 'slice.png') #For case when nifti is compressed
-            if matplotlib_contrast:
+            if matplotlib_contrast == False:
                 make_slices_image(registered_nii_for_slice_img, slice_info_dict, slice_img_path, close_plot = True,
                         upsample_factor = 2, mask_path = masked_image)
             else:
