@@ -197,6 +197,7 @@ parser.add_argument("analysis_level", help="Should always be participant", type=
 
 parser.add_argument('--participant_label', '--participant-label', help="The name/label of the subject to be processed (i.e. sub-01 or 01)", type=str)
 parser.add_argument('--session_id', '--session-id', help="OPTIONAL: the name of a specific session to be processed (i.e. ses-01)", type=str)
+parser.add_argument('--matplotlib_contrast', '--matplotlib-contrast', help="Use matplotlib to determine image contrast instead of brain mask intensity statistics.", action='store_true')
 args = parser.parse_args()
 
 
@@ -213,6 +214,7 @@ if os.path.isabs(output_dir) == False:
 analysis_level = args.analysis_level
 if analysis_level != 'participant':
     raise ValueError('Error: analysis level must be participant, but program received: ' + analysis_level)
+matplotlib_contrast = args.matplotlib_contrast
 
 
 #Set session label
@@ -286,15 +288,23 @@ for temp_participant in participants:
             registered_nii_for_slice_img, masked_image = register_images(temp_t1w, output_dir)
             slice_img_path = registered_nii_for_slice_img.replace('T1w.nii', 'T1w_image-slice.png')
             slice_img_path = slice_img_path.replace('slice.png.gz', 'slice.png') #For case when nifti is compressed
-            make_slices_image(registered_nii_for_slice_img, slice_info_dict, slice_img_path, close_plot = True,
-                     upsample_factor = 2, mask_path = masked_image)
+            if matplotlib_contrast:
+                make_slices_image(registered_nii_for_slice_img, slice_info_dict, slice_img_path, close_plot = True,
+                        upsample_factor = 2, mask_path = masked_image)
+            else:
+                make_slices_image(registered_nii_for_slice_img, slice_info_dict, slice_img_path, close_plot = True,
+                        upsample_factor = 2)
             
             
         for temp_t2w in anats_dict['T2w_images']:
             registered_nii_for_slice_img, masked_image = register_images(temp_t2w, output_dir)
             slice_img_path = registered_nii_for_slice_img.replace('T2w.nii', 'T2w_image-slice.png')
             slice_img_path = slice_img_path.replace('slice.png.gz', 'slice.png') #For case when nifti is compressed
-            make_slices_image(registered_nii_for_slice_img, slice_info_dict, slice_img_path, close_plot = True,
-                     upsample_factor = 2, mask_path = masked_image)
+            if matplotlib_contrast:
+                make_slices_image(registered_nii_for_slice_img, slice_info_dict, slice_img_path, close_plot = True,
+                        upsample_factor = 2, mask_path = masked_image)
+            else:
+                make_slices_image(registered_nii_for_slice_img, slice_info_dict, slice_img_path, close_plot = True,
+                        upsample_factor = 2)
 
         print('Finished with: {}'.format(session_path))
