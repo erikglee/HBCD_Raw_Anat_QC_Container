@@ -47,7 +47,7 @@ def register_images(input_file_path, output_destination, reuse_existing_output_f
         
     if os.path.exists(final_registered_out_file):
         print('Using already existing registered out file with name: {}'.format(final_registered_out_file))
-        return final_registered_out_file
+        return final_registered_out_file, stripped_out_file
     
     os.system('python3 /freesurfer/mri_synthstrip -i {input_path} -o {output_skull_stripped_path}'.format(
         input_path = input_file_path, output_skull_stripped_path = stripped_out_file))
