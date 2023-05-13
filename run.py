@@ -182,7 +182,7 @@ def make_slices_image(image_nifti_path, slice_info_dict, output_img_name, close_
     plt.xticks([])
     plt.yticks([])
     plt.axis('off')
-    plt.savefig(output_img_name, bbox_inches='tight')
+    plt.savefig(output_img_name, bbox_inches='tight', pad_inches = 0)
     if close_plot:
         plt.close()
     
