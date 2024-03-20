@@ -20,7 +20,9 @@ the image will be registered to the T1w infant MNI template under the image_temp
 occur if the utility instead found a T1w image. T2w images are instead registered to the T2w infant MNI template.
 
 
+
 Related links:
+
 SynthStrip - https://surfer.nmr.mgh.harvard.edu/docs/synthstrip/ 
 
 DIPY - https://dipy.org/ 
