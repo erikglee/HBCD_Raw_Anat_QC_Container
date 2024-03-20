@@ -15,7 +15,7 @@ in the plot default to having a lower/upper bound on intensity of 0.3 and 1.7 ti
 within the brain mask.
 
 If QALAS data is available in the BIDS dataset, png snapshots will only be created if there is one QALAS volume
-with naming following the pattern ".../anat/*inv-2_QALAS.ni*". If a file satisfiying this naming is present,
+with naming following the pattern ".../anat/...inv-2_QALAS.ni...". If a file satisfiying this naming is present,
 the image will be registered to the T1w infant MNI template under the image_templates folder, same as would
 occur if the utility instead found a T1w image. T2w images are instead registered to the T2w infant MNI template.
 
