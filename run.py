@@ -68,7 +68,7 @@ def register_images(input_file_path, output_destination, reuse_existing_output_f
     if is_qalas == False:
         registered_out_path = stripped_out_file.replace('{}.nii.gz'.format(contrast), 'reg-MNIInfant_{}.nii.gz'.format(contrast))
     else:
-        registered_out_path = stripped_out_file.replace('{}.nii.gz'.format(contrast), 'reg-MNIInfant_QALAS.nii.gz')
+        registered_out_path = stripped_out_file.replace('QALAS.nii.gz'.format(contrast), 'reg-MNIInfant_QALAS.nii.gz')
     dipy.io.image.save_nifti(registered_out_path,
                          registered_img[0], template_image[1])
     
