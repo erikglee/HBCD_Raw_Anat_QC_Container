@@ -22,7 +22,11 @@ occur if the utility instead found a T1w image. T2w images are instead registere
 
 Related links:
 SynthStrip - https://surfer.nmr.mgh.harvard.edu/docs/synthstrip/ 
+
 DIPY - https://dipy.org/ 
+
 TemplateFlow - https://www.templateflow.org/browse/ 
+
 Infant Atlases - https://nist.mni.mcgill.ca/infant-atlases-0-4-5-years/ 
+
 nibabel - https://nipy.org/nibabel/ 
