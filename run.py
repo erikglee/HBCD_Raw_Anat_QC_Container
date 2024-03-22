@@ -2,8 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import os, glob
-import dipy
+import os, glob, shutil
 import nibabel as nib
 from scipy import ndimage
 from scipy.interpolate import RegularGridInterpolator
@@ -15,6 +14,8 @@ from dipy.align.imaffine import (AffineMap,
                                  AffineRegistration)
 from dipy.align.transforms import (TranslationTransform3D,
                                    RigidTransform3D)
+
+
 
 def register_images(input_file_path, output_destination, reuse_existing_output_file = True):
     '''
@@ -36,6 +37,7 @@ def register_images(input_file_path, output_destination, reuse_existing_output_f
     if os.path.exists(anat_out_dir) == False:
         os.makedirs(anat_out_dir)
         
+    is_qalas = False
     if 'T1w' in partial_sub_path:
         contrast = 'T1w'
         stripped_out_file = os.path.join(output_destination, partial_sub_path).replace('T1w.nii.gz', 'masked-brain_T1w.nii.gz')
@@ -44,6 +46,11 @@ def register_images(input_file_path, output_destination, reuse_existing_output_f
         contrast = 'T2w'
         stripped_out_file = os.path.join(output_destination, partial_sub_path).replace('T2w.nii.gz', 'masked-brain_T2w.nii.gz')
         final_registered_out_file = os.path.join(output_destination, partial_sub_path).replace('T2w.nii.gz', 'reg-MNIInfant_T2w.nii.gz')
+    elif 'QALAS.nii' in partial_sub_path:
+        contrast = 'T1w'
+        is_qalas = True
+        stripped_out_file = os.path.join(output_destination, partial_sub_path).replace('QALAS.nii.gz', 'masked-brain_QALAS.nii.gz')
+        final_registered_out_file = os.path.join(output_destination, partial_sub_path).replace('QALAS.nii.gz', 'reg-MNIInfant_QALAS.nii.gz')
         
     if os.path.exists(final_registered_out_file):
         print('Using already existing registered out file with name: {}'.format(final_registered_out_file))
@@ -55,22 +62,14 @@ def register_images(input_file_path, output_destination, reuse_existing_output_f
     print('Attempting Native to MNI Infant Registration using DIPY: ')
     template_image_path = '/image_templates/tpl-MNIInfant_cohort-1_res-1_mask-applied_{}.nii.gz'.format(contrast)
     template_image = dipy.io.image.load_nifti(template_image_path)
-    original_image = dipy.io.image.load_nifti(input_file_path)
     registered_img = align.affine_registration(stripped_out_file, template_image[0], static_affine=template_image[1])
-    registered_out_path = stripped_out_file.replace('{}.nii.gz'.format(contrast), 'reg-MNIInfant_{}.nii.gz'.format(contrast))
-    dipy.io.image.save_nifti(registered_out_path,
-                         registered_img[0], template_image[1])
-    
-    affine_map = AffineMap(registered_img[1],
-                       original_image[0].shape, original_image[1],
-                       original_image[0].shape, original_image[1])
-    resampled = affine_map.transform(original_image[0])
-    dipy.io.image.save_nifti(final_registered_out_file,
-                     resampled, original_image[1])
 
-    
-    
-    
+    temp_img_to_align = nib.load(input_file_path)
+    affine = registered_img[1]
+    new_affine = np.matmul(np.linalg.inv(affine), temp_img_to_align.affine)
+    new_nifti = nib.nifti1.Nifti1Image(temp_img_to_align.get_fdata(), new_affine, header=temp_img_to_align.header)
+    nib.save(new_nifti, final_registered_out_file)
+        
     return final_registered_out_file, stripped_out_file
 
 def make_slices_image(image_nifti_path, slice_info_dict, output_img_name, close_plot = True,
@@ -124,12 +123,12 @@ def make_slices_image(image_nifti_path, slice_info_dict, output_img_name, close_
     else:
         mask_data = nib.load(mask_path).get_fdata()
         mask_vals = mask_data[mask_data > 0.5]
-        #vmin = np.percentile(mask_vals, 1)
-        #vmax = np.percentile(mask_vals, 95)
-        hist_results = np.histogram(mask_vals, bins = 100)
-        modal_value = hist_results[1][np.argmax(hist_results[0])]
-        vmin = modal_value*.3
-        vmax = modal_value*1.7
+        vmin = np.percentile(mask_vals, 1)
+        vmax = np.percentile(mask_vals, 99)
+        #hist_results = np.histogram(mask_vals, bins = 100)
+        #modal_value = hist_results[1][np.argmax(hist_results[0])]
+        #vmin = modal_value*.3
+        #vmax = modal_value*1.7
     
     #Grab data + affine
     full_data = nifti_image.get_fdata()
@@ -283,6 +282,10 @@ for temp_participant in participants:
         #Grab T2w file
         t2_anats = glob.glob(os.path.join(session_path,'anat/*T2w.ni*'))
         anats_dict['T2w_images'] = t2_anats
+
+        #Grab QALAS file - specifically take inv2 for now
+        qalas_anats = glob.glob(os.path.join(session_path,'anat/*inv-2_QALAS.ni*'))
+        anats_dict['QALAS_images'] = qalas_anats
         
         for temp_t1w in anats_dict['T1w_images']:
             registered_nii_for_slice_img, masked_image = register_images(temp_t1w, output_dir)
@@ -294,6 +297,8 @@ for temp_participant in participants:
             else:
                 make_slices_image(registered_nii_for_slice_img, slice_info_dict, slice_img_path, close_plot = True,
                         upsample_factor = 2)
+            os.remove(masked_image)
+            shutil.copyfile(temp_t1w.replace('.nii.gz', '.json'), registered_nii_for_slice_img.replace('.nii.gz', '.json'))
             
             
         for temp_t2w in anats_dict['T2w_images']:
@@ -306,5 +311,20 @@ for temp_participant in participants:
             else:
                 make_slices_image(registered_nii_for_slice_img, slice_info_dict, slice_img_path, close_plot = True,
                         upsample_factor = 2)
+            os.remove(masked_image)
+            shutil.copyfile(temp_t2w.replace('.nii.gz', '.json'), registered_nii_for_slice_img.replace('.nii.gz', '.json'))
+                
+        for temp_qalas in anats_dict['QALAS_images']:
+            registered_nii_for_slice_img, masked_image = register_images(temp_qalas, output_dir)
+            slice_img_path = registered_nii_for_slice_img.replace('QALAS.nii', 'QALAS_image-slice.png')
+            slice_img_path = slice_img_path.replace('slice.png.gz', 'slice.png') #For case when nifti is compressed
+            if matplotlib_contrast == False:
+                make_slices_image(registered_nii_for_slice_img, slice_info_dict, slice_img_path, close_plot = True,
+                        upsample_factor = 2, mask_path = masked_image)
+            else:
+                make_slices_image(registered_nii_for_slice_img, slice_info_dict, slice_img_path, close_plot = True,
+                        upsample_factor = 2)
+            os.remove(masked_image)
+            shutil.copyfile(temp_qalas.replace('.nii.gz', '.json'), registered_nii_for_slice_img.replace('.nii.gz', '.json'))
 
         print('Finished with: {}'.format(session_path))
