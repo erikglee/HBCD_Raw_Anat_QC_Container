@@ -3,7 +3,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os, glob, shutil
-import dipy
 import nibabel as nib
 from scipy import ndimage
 from scipy.interpolate import RegularGridInterpolator
@@ -63,26 +62,14 @@ def register_images(input_file_path, output_destination, reuse_existing_output_f
     print('Attempting Native to MNI Infant Registration using DIPY: ')
     template_image_path = '/image_templates/tpl-MNIInfant_cohort-1_res-1_mask-applied_{}.nii.gz'.format(contrast)
     template_image = dipy.io.image.load_nifti(template_image_path)
-    original_image = dipy.io.image.load_nifti(input_file_path)
     registered_img = align.affine_registration(stripped_out_file, template_image[0], static_affine=template_image[1])
-    if is_qalas == False:
-        registered_out_path = stripped_out_file.replace('{}.nii.gz'.format(contrast), 'reg-MNIInfant_{}.nii.gz'.format(contrast))
-    else:
-        registered_out_path = stripped_out_file.replace('QALAS.nii.gz'.format(contrast), 'reg-MNIInfant_QALAS.nii.gz')
-    dipy.io.image.save_nifti(registered_out_path,
-                         registered_img[0], template_image[1])
-    
-    affine_map = AffineMap(registered_img[1],
-                       original_image[0].shape, original_image[1],
-                       original_image[0].shape, original_image[1])
-    resampled = affine_map.transform(original_image[0])
-    dipy.io.image.save_nifti(final_registered_out_file,
-                     resampled, original_image[1])
-    
 
-    
-    
-    os.remove(registered_out_path) #this is intermediate image that isnt needed
+    temp_img_to_align = nib.load(input_file_path)
+    affine = registered_img[1]
+    new_affine = np.matmul(np.linalg.inv(affine), temp_img_to_align.affine)
+    new_nifti = nib.nifti1.Nifti1Image(temp_img_to_align.get_fdata(), new_affine, header=temp_img_to_align.header)
+    nib.save(new_nifti, final_registered_out_file)
+        
     return final_registered_out_file, stripped_out_file
 
 def make_slices_image(image_nifti_path, slice_info_dict, output_img_name, close_plot = True,
