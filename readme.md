@@ -11,8 +11,7 @@ The pipeline looks for T1w/T2w/QALAS scans and tries to make snapshot png images
 an image is found, it is skull stripped by SynthStrip, then it is aligned to infant MNI space using a
 12 DOF transformation in DIPY. Then a png is generated that displays three axial, coronal, and sagittal
 views of the original MRI image that has been linearly transformed to infant MNI space. The color intensities
-in the plot default to having a lower/upper bound on intensity of 0.3 and 1.7 times the modal signal intensity
-within the brain mask.
+in the plot default to having a lower/upper bound on intensity of 1st/99th percentile of signal intensity found within the brain mask.
 
 If QALAS data is available in the BIDS dataset, png snapshots will only be created if there is one QALAS volume
 with naming following the pattern ".../anat/...inv-2_QALAS.ni...". If a file satisfiying this naming is present,
